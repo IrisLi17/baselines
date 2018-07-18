@@ -280,7 +280,8 @@ def build_act_with_param_noise(make_obs_ph, q_func, num_actions, scope="deepq", 
 
 
 def build_train(make_obs_ph, q_func, num_actions, optimizer, grad_norm_clipping=None, gamma=1.0,
-    double_q=True, scope="deepq", reuse=None, param_noise=False, param_noise_filter_func=None):
+    double_q=True, scope="deepq", reuse=None, param_noise=False, param_noise_filter_func=None,
+    soft_q = True):
     """Creates the train function:
 
     Parameters
@@ -369,8 +370,15 @@ def build_train(make_obs_ph, q_func, num_actions, optimizer, grad_norm_clipping=
             q_tp1_best = tf.reduce_max(q_tp1, 1)
         q_tp1_best_masked = (1.0 - done_mask_ph) * q_tp1_best
 
+        # add soft-max q below
+        q_softmax = tf.log(tf.reduce_sum(tf.exp(q_tp1)))
+        # mask?
+
         # compute RHS of bellman equation
-        q_t_selected_target = rew_t_ph + gamma * q_tp1_best_masked
+        if soft_q:
+            q_t_selected_target = rew_t_ph + gamma * q_softmax
+        else:
+            q_t_selected_target = rew_t_ph + gamma * q_tp1_best_masked
 
         # compute the error (potentially clipped)
         td_error = q_t_selected - tf.stop_gradient(q_t_selected_target)
