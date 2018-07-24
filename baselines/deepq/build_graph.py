@@ -371,7 +371,8 @@ def build_train(make_obs_ph, q_func, num_actions, optimizer, grad_norm_clipping=
         q_tp1_best_masked = (1.0 - done_mask_ph) * q_tp1_best
 
         # add soft-max q below
-        q_softmax = tf.log(tf.reduce_sum(tf.exp(q_tp1)))
+        tau = 0.1
+        q_softmax = tf.log(tf.reduce_sum(tf.exp(q_tp1/tau)))
         # mask?
 
         # compute RHS of bellman equation
