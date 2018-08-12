@@ -6,6 +6,7 @@ from baselines import bench
 import argparse
 from baselines import logger
 from baselines.common.atari_wrappers import make_atari
+import numpy as np
 
 def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -40,14 +41,14 @@ def main():
         prioritized_replay=bool(args.prioritized)
     )
     # act.save("pong_model.pkl") XXX
-    while True:
-        obs, done = env.reset(), False
-        episode_rew = 0
-        while not done:
-            env.render()
-            obs, rew, done, _ = env.step(act(obs[None])[0])
-            episode_rew += rew
-        print("Episode reward", episode_rew)
+    obs = env.reset()
+    done = 0
+    while not done:
+        env.render()
+        kwargs = {}
+        action = act(np.array(obs)[None], update_eps=0, **kwargs)[0]
+        print(action)
+        obs,rew,done,_ = env.step(action)
 
     env.close()
 
