@@ -372,7 +372,7 @@ def build_train(make_obs_ph, q_func, num_actions, optimizer, grad_norm_clipping=
 
         # add soft-max q below
         tau = 0.1
-        q_softmax = tf.log(tf.reduce_sum(tf.exp(q_tp1/tau),1))
+        q_softmax = tf.log(tf.clip_by_value(tf.reduce_sum(tf.exp(q_tp1/tau),1),1e-10,1e30))
         # mask
         q_softmax_masked = (1.0 - done_mask_ph) * q_softmax
 
@@ -383,6 +383,10 @@ def build_train(make_obs_ph, q_func, num_actions, optimizer, grad_norm_clipping=
             q_t_selected_target = rew_t_ph + gamma * q_tp1_best_masked
 
         # compute the error (potentially clipped)
+        #with open("diary.txt",'a') as f:
+        #    f.write("q_t_selected_target"+str(tf.reduce_max(tf.abs(q_t_selected_target))))
+        #    f.write("q_t_selected"+str(tf.reduce_max(tf.abs(q_t_selected))))
+        #f.close()
         td_error = q_t_selected - tf.stop_gradient(q_t_selected_target)
         errors = U.huber_loss(td_error)
         weighted_error = tf.reduce_mean(importance_weights_ph * errors)

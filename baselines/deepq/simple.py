@@ -217,7 +217,8 @@ def learn(env,
     reset = True
     with tempfile.TemporaryDirectory() as td:
         model_saved = False
-        model_file = os.path.join(td, "model")
+        # model_file = os.path.join(td, "model")
+        model_file = "/home/liyunfei/Projects/baselines/model/model"
         for t in range(max_timesteps):
             if callback is not None:
                 if callback(locals(), globals()):
@@ -256,12 +257,24 @@ def learn(env,
                 if prioritized_replay:
                     experience = replay_buffer.sample(batch_size, beta=beta_schedule.value(t))
                     (obses_t, actions, rewards, obses_tp1, dones, weights, batch_idxes) = experience
+                #    with open("diary.txt",'a') as f:
+                #        f.write("actions"+str(actions))
+                #        f.write("rewards"+str(rewards))
+                #        f.write("obses_tp1"+str(obses_tp1))
+                #        f.write("dones"+str(dones))
+                #        f.write("weights"+str(weights))
+                #        f.write("batch_idxes"+str(batch_idxes))
+                #    f.close()
                 else:
                     obses_t, actions, rewards, obses_tp1, dones = replay_buffer.sample(batch_size)
                     weights, batch_idxes = np.ones_like(rewards), None
                 td_errors = train(obses_t, actions, rewards, obses_tp1, dones, weights)
                 if prioritized_replay:
                     new_priorities = np.abs(td_errors) + prioritized_replay_eps
+                    #print("priority"+str(new_priorities))
+                    #with open("diary.txt",'a') as f:
+                    #    f.write("priority"+str(new_priorities))
+                    #f.close()
                     replay_buffer.update_priorities(batch_idxes, new_priorities)
 
             if t > learning_starts and t % target_network_update_freq == 0:
