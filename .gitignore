@@ -38,4 +38,4 @@ src
 .cache
 
 MUJOCO_LOG.TXT
-
+model/
