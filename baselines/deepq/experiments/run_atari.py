@@ -7,6 +7,8 @@ import argparse
 from baselines import logger
 from baselines.common.atari_wrappers import make_atari
 import numpy as np
+import os
+import datetime
 
 def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -15,8 +17,13 @@ def main():
     parser.add_argument('--prioritized', type=int, default=1)
     parser.add_argument('--dueling', type=int, default=1)
     parser.add_argument('--num-timesteps', type=int, default=int(10e6))
+    parser.add_argument('--log-dir', type=str, default=None)
     args = parser.parse_args()
-    logger.configure()
+    if args['log_dir'] is None:
+        dir = os.path.join('./logs/', args['env'], datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S-%f"))
+    else:
+        dir = os.path.join('./logs/', args['env'], args['log_dir'])
+    logger.configure(dir = dir)
     set_global_seeds(args.seed)
     env = make_atari(args.env)
     env = bench.Monitor(env, logger.get_dir())
