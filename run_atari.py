@@ -19,10 +19,10 @@ def main():
     parser.add_argument('--num-timesteps', type=int, default=int(10e6))
     parser.add_argument('--log-dir', type=str, default=None)
     args = parser.parse_args()
-    if args['log_dir'] is None:
-        dir = os.path.join('./logs/', args['env'], datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S-%f"))
+    if args.log_dir is None:
+        dir = os.path.join('./logs/', args.env, datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S-%f"))
     else:
-        dir = os.path.join('./logs/', args['env'], args['log_dir'])
+        dir = os.path.join('./logs/', args.env, args.log_dir)
     logger.configure(dir = dir)
     set_global_seeds(args.seed)
     env = make_atari(args.env)
