@@ -227,11 +227,11 @@ def learn(env,
         expert.load_file("/home/zhangxiaoqin/Projects/conda/atari_v2_release",g)
         for pre_t in range(pre_timesteps):
             experience = expert.sample(batch_size)
-            obses_t = experience.obs0
-            actions = experience.actions
-            rewards = experience.rewards
-            obses_tp1 = experience.obs1
-            dones = experience.terminals1
+            obses_t = experience['obs0']
+            actions = experience['actions']
+            rewards = experience['rewards']
+            obses_tp1 = experience['obs1']
+            dones = experience['terminals1']
             weights = np.ones_like(rewards)
             td_errors = train(obses_t, actions, rewards, obses_tp1, dones, weights)
             if pre_t % target_network_update_freq == 0:

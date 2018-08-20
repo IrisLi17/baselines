@@ -75,11 +75,11 @@ class Expert:
         traj = self.selected_traj[np.random.random_integers(len(self.selected_traj), size = 1)[0]]
         nb_entries = len(self.dataset.trajectories[self.g][traj]) - 4
         frames = list(np.random.random_integers(nb_entries, size = batch_size))
-        obs0_batch = [self.getFrameStack(traj, frame) for frame in frames]
-        obs1_batch = [self.getFrameStack(traj, frame + 1) for frame in frames]
-        reward_batch = [self.getReward(traj, frame) for frame in frames]
-        action_batch = [self.dataset.trajectories[self.g][traj][frame]['action'] for frame in frames]
-        terminal1_batch = [self.dataset.trajectories[self.g][traj][frame + 5]['terminal'] for frame in frames]
+        obs0_batch = np.array([self.getFrameStack(traj, frame) for frame in frames])
+        obs1_batch = np.array([self.getFrameStack(traj, frame + 1) for frame in frames])
+        reward_batch = np.array([self.getReward(traj, frame) for frame in frames])
+        action_batch = np.array([self.dataset.trajectories[self.g][traj][frame]['action'] for frame in frames])
+        terminal1_batch = np.array([self.dataset.trajectories[self.g][traj][frame + 5]['terminal'] for frame in frames])
         result = {
             'obs0': obs0_batch,
             'obs1': obs1_batch,
