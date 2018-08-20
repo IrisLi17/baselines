@@ -223,7 +223,7 @@ def learn(env,
     reset = True
 
     if use_expert:
-        expert = Expert(1e6,env)
+        expert = Expert(env)
         expert.load_file("/home/zhangxiaoqin/Projects/conda/atari_v2_release",g)
         for pre_t in range(pre_timesteps):
             experience = expert.sample(batch_size)
