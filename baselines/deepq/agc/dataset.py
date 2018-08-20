@@ -37,6 +37,8 @@ class AtariDataset():
             self.stats[g]['max_score'] = np.max(final_scores)
             self.stats[g]['min_score'] = np.min(final_scores)
             self.stats[g]['avg_score'] = np.mean(final_scores)
+            if len(final_scores)>=50:
+                self.stats[g]['top50_score'] = np.sort(final_scores)[-50]
             self.stats[g]['stddev'] = np.std(final_scores)
             self.stats[g]['sem'] = st.sem(final_scores)
 
