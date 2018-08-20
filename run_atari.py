@@ -22,6 +22,7 @@ def main():
     parser.add_argument('--num-timesteps', type=int, default=int(10e6))
     parser.add_argument('--log-dir', type=str, default=None)
     parser.add_argument('--model-dir', type=str, default=None)
+    parser.add_argument('--expert-model-dir',type=str, default=None)
     args = parser.parse_args()
     pattern1 = re.compile('SpaceInvaders')
     pattern2 = re.compile('MsPacman')
@@ -47,6 +48,10 @@ def main():
         model_dir = os.path.join('./model/', args.env, "steps"+str(args.num_timesteps))
     else:
         model_dir = os.path.join('./model/', args.env, args.model_dir)
+    if args.expert_model_dir is None:
+        expert_model_dir = os.path.join('./expert/',args.env, "pretrain"+str(args.pre_timesteps))
+    else:
+        expert_model_dir = os.path.join('./expert/', args.env, args.expert_model_dir)
     logger.configure(dir = dir)
     set_global_seeds(args.seed)
     env = make_atari(args.env)
@@ -74,7 +79,8 @@ def main():
         prioritized_replay=bool(args.prioritized),
         use_expert=bool(args.expert),
         pre_timesteps=args.pre_timesteps,
-        model_file=model_dir
+        model_file=model_dir,
+        expert_file=expert_model_dir
     )
     # act.save("pong_model.pkl") XXX
     obs = env.reset()
