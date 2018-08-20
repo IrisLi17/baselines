@@ -6,8 +6,8 @@ from baselines.deepq.memory import Memory
 import os
 import math
 import cv2
-import baselines.deepq.agc as agc
-
+# import baselines.deepq.agc as agc
+from baselines.deepq import agc
 
 class Expert:
     def __init__(self, limit, env):
