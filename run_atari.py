@@ -5,7 +5,7 @@ from baselines.common import set_global_seeds
 from baselines import bench
 import argparse
 from baselines import logger
-from baselines.common.atari_wrappers import make_atari
+from baselines.common.atari_wrappers import make_atari, stack_atari
 import numpy as np
 import os
 import datetime
@@ -54,7 +54,8 @@ def main():
         expert_model_dir = os.path.join('./expert/', args.env, args.expert_model_dir)
     logger.configure(dir = dir)
     set_global_seeds(args.seed)
-    env = make_atari(args.env)
+    # env = make_atari(args.env)
+    env = stack_atari(args.env)
     env = bench.Monitor(env, logger.get_dir())
     env = deepq.wrap_atari_dqn(env)
     model = deepq.models.cnn_to_mlp(
