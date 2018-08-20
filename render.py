@@ -17,6 +17,7 @@ def main():
     parser.add_argument('--prioritized', type=int, default=1)
     parser.add_argument('--dueling', type=int, default=1)
     parser.add_argument('--num-timesteps', type=int, default=int(10e6))
+    parser.add_argument('--model-dir', type=str, default=None)
     args = parser.parse_args()
     logger.configure()
     set_global_seeds(args.seed)
@@ -54,7 +55,11 @@ def main():
 
     U.initialize()
 
-    model_file = "/home/liyunfei/Projects/baselines/model/model"
+    # model_file = "/home/liyunfei/Projects/baselines/model/model"
+    if args.model_dir is None:
+        model_file = os.path.join("./model/", args.env, "steps"+str(args.num_timesteps))
+    else:
+        model_file = os.path.join("./model/", args.env, args.model_dir)
     U.load_state(model_file)
 
     obs = env.reset()
