@@ -72,9 +72,9 @@ class Expert:
                 self.memory.append(obs[i][j], acs[i][j], 0., 0., done)
 
     def sample(self, batch_size):
-        traj = self.selected_traj[np.random.random_integers(len(self.selected_traj), size = 1)]
+        traj = self.selected_traj[np.random.random_integers(len(self.selected_traj), size = 1)[0]]
         nb_entries = len(self.dataset.trajectories[self.g][traj]) - 4
-        frames = np.random.random_integers(nb_entries, size = batch_size)
+        frames = list(np.random.random_integers(nb_entries, size = batch_size))
         obs0_batch = [self.getFrameStack(traj, frame) for frame in frames]
         obs1_batch = [self.getFrameStack(traj, frame + 1) for frame in frames]
         reward_batch = [self.getReward(traj, frame) for frame in frames]
