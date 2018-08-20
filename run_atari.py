@@ -54,8 +54,8 @@ def main():
         expert_model_dir = os.path.join('./expert/', args.env, args.expert_model_dir)
     logger.configure(dir = dir)
     set_global_seeds(args.seed)
-    # env = make_atari(args.env)
-    env = stack_atari(args.env)
+    env = make_atari(args.env)
+    # env = stack_atari(args.env)
     env = bench.Monitor(env, logger.get_dir())
     env = deepq.wrap_atari_dqn(env)
     model = deepq.models.cnn_to_mlp(
