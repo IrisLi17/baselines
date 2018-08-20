@@ -7,7 +7,7 @@ import os
 import math
 import cv2
 # import baselines.deepq.agc as agc
-from baselines.deepq import agc
+from baselines.deepq.agc import dataset,util
 
 class Expert:
     def __init__(self, env):
@@ -21,7 +21,7 @@ class Expert:
         self.selected_traj = []
 
     def load_file(self, DATADIR, g):
-        self.dataset = agc.dataset.AtariDataset(DATADIR)
+        self.dataset = dataset.AtariDataset(DATADIR)
         self.DATADIR = DATADIR
         self.g = g
         stats = self.dataset.stats
@@ -97,8 +97,8 @@ class Expert:
         for frame in range(stack):
             state = cv2.imread(os.path.join(obs_path, str(start+frame) + ".png"))
             state1 = cv2.imread(os.path.join(obs_path, str(start+frame+1) + ".png"))
-            obs[:,:,frame] = agc.util.preprocess(state)
-            obs1[:,:,frame] = agc.util.preprocess(state1)
+            obs[:,:,frame] = util.preprocess(state)
+            obs1[:,:,frame] = util.preprocess(state1)
             reward += self.dataset.trajectories[self.g][traj][start+frame]['reward']
         action = self.dataset.trajectories[self.g][traj][start]['action']
         terminal = self.dataset.trajectories[self.g][traj][start]['terminal']
