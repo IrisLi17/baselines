@@ -12,6 +12,7 @@ from baselines import logger
 from baselines.common.schedules import LinearSchedule
 from baselines import deepq
 from baselines.deepq.replay_buffer import ReplayBuffer, PrioritizedReplayBuffer
+from baselines.deepq.expert import Expert
 
 
 class ActWrapper(object):
@@ -77,6 +78,7 @@ def load(path):
 
 
 def learn(env,
+          g,
           q_func,
           lr=5e-4,
           max_timesteps=100000,
@@ -95,8 +97,12 @@ def learn(env,
           prioritized_replay_beta0=0.4,
           prioritized_replay_beta_iters=None,
           prioritized_replay_eps=1e-6,
+          use_expert=False,
+          pre_timesteps=10000,
           param_noise=False,
-          callback=None):
+          callback=None,
+          model_file=None,
+          expert_file=None):
     """Train a deepq model.
 
     Parameters
@@ -215,10 +221,26 @@ def learn(env,
     saved_mean_reward = None
     obs = env.reset()
     reset = True
+
+    if use_expert:
+        expert = Expert(1e6,env)
+        expert.load_file("/home/zhangxiaoqin/Projects/conda/atari_v2_release",g)
+        for pre_t in range(pre_timesteps):
+            experience = expert.sample(batch_size)
+            obses_t = experience.obs0
+            actions = experience.actions
+            rewards = experience.rewards
+            obses_tp1 = experience.obs1
+            dones = experience.terminals1
+            weights = np.ones_like(rewards)
+            td_errors = train(obses_t, actions, rewards, obses_tp1, dones, weights)
+            if pre_t % target_network_update_freq == 0:
+                update_target()
+        U.save_state(expert_file)
     with tempfile.TemporaryDirectory() as td:
         model_saved = False
         # model_file = os.path.join(td, "model")
-        model_file = "/home/liyunfei/Projects/baselines/model/model"
+        # model_file = "/home/liyunfei/Projects/baselines/model/model"
         for t in range(max_timesteps):
             if callback is not None:
                 if callback(locals(), globals()):

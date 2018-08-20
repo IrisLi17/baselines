@@ -95,6 +95,7 @@ The functions in this file can are used to create the following functions:
 """
 import tensorflow as tf
 import baselines.common.tf_util as U
+from baselines.common.mpi_running_mean_std import RunningMeanStd
 
 
 def default_param_noise_filter(var):
