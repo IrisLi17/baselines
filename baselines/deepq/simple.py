@@ -294,18 +294,18 @@ def learn(env,
                     obses_t, actions, rewards, obses_tp1, dones = replay_buffer.sample(batch_size)
                     weights, batch_idxes = np.ones_like(rewards), None
                 td_errors = train(obses_t, actions, rewards, obses_tp1, dones, weights)
-                if not os.path.exists('./logs/MsPacmanNoFrameskip-v0/test.csv'):
-                    with open('./logs/MsPacmanNoFrameskip-v0/test.csv', 'a', newline='') as csvfile:
+                if not os.path.exists('./logs/'+env.spec.id+'/loss.csv'):
+                    with open('./logs/'+env.spec.id+'/loss.csv', 'a', newline='') as csvfile:
                         l = td_errors.size
                         label = ['loss'+str(i) for i in range(l)]
                         label.insert(0,'t')
                         spamwriter = csv.writer(csvfile, delimiter=',',
                                                 quotechar=',', quoting=csv.QUOTE_MINIMAL)
                         spamwriter.writerow(label)
-                with open('./logs/MsPacmanNoFrameskip-v0/test.csv', 'a', newline='') as csvfile:
+                with open('./logs/'+env.spec.id+'/loss.csv', 'a', newline='') as csvfile:
                     spamwriter = csv.writer(csvfile, delimiter=',',
                                             quotechar=',', quoting=csv.QUOTE_MINIMAL)
-                    spamwriter.writerow(td_errors.insert(0,t))
+                    spamwriter.writerow(np.insert(td_errors,0,t))
                 if prioritized_replay:
                     new_priorities = np.abs(td_errors) + prioritized_replay_eps
                     #print("priority"+str(new_priorities))
