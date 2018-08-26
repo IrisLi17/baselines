@@ -293,6 +293,9 @@ def learn(env,
                     obses_t, actions, rewards, obses_tp1, dones = replay_buffer.sample(batch_size)
                     weights, batch_idxes = np.ones_like(rewards), None
                 td_errors = train(obses_t, actions, rewards, obses_tp1, dones, weights)
+                with open('/logs/'+env.spec.id+'/loss.txt','a') as f:
+                    f.write(str(t)+'\t'+str(td_errors)+'\n')
+                f.close()
                 if prioritized_replay:
                     new_priorities = np.abs(td_errors) + prioritized_replay_eps
                     #print("priority"+str(new_priorities))
