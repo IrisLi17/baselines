@@ -5,6 +5,7 @@ import tensorflow as tf
 import zipfile
 import cloudpickle
 import numpy as np
+import csv
 
 import gym
 import baselines.common.tf_util as U
@@ -293,9 +294,18 @@ def learn(env,
                     obses_t, actions, rewards, obses_tp1, dones = replay_buffer.sample(batch_size)
                     weights, batch_idxes = np.ones_like(rewards), None
                 td_errors = train(obses_t, actions, rewards, obses_tp1, dones, weights)
-                with open('/logs/'+env.spec.id+'/loss.txt','a') as f:
-                    f.write(str(t)+'\t'+str(td_errors)+'\n')
-                f.close()
+                if not os.path.exists('./logs/MsPacmanNoFrameskip-v0/test.csv'):
+                    with open('./logs/MsPacmanNoFrameskip-v0/test.csv', 'a', newline='') as csvfile:
+                        l = td_errors.size
+                        label = ['loss'+str(i) for i in range(l)]
+                        label.insert(0,'t')
+                        spamwriter = csv.writer(csvfile, delimiter=',',
+                                                quotechar=',', quoting=csv.QUOTE_MINIMAL)
+                        spamwriter.writerow(label)
+                with open('./logs/MsPacmanNoFrameskip-v0/test.csv', 'a', newline='') as csvfile:
+                    spamwriter = csv.writer(csvfile, delimiter=',',
+                                            quotechar=',', quoting=csv.QUOTE_MINIMAL)
+                    spamwriter.writerow(td_errors.insert(0,t))
                 if prioritized_replay:
                     new_priorities = np.abs(td_errors) + prioritized_replay_eps
                     #print("priority"+str(new_priorities))
