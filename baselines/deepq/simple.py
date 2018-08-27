@@ -99,11 +99,12 @@ def learn(env,
           prioritized_replay_beta_iters=None,
           prioritized_replay_eps=1e-6,
           use_expert=False,
-          pre_timesteps=10000,
+          pre_timesteps=100,
           param_noise=False,
           callback=None,
           model_file=None,
-          expert_file=None):
+          expert_file=None,
+          epoch = 60):
     """Train a deepq model.
 
     Parameters
@@ -228,18 +229,38 @@ def learn(env,
     if use_expert:
         expert = Expert(env)
         expert.load_file("/home/zhangxiaoqin/Projects/conda/atari_v2_release",g)
-        for pre_t in range(pre_timesteps):
-            experience = expert.sample(batch_size)
-            obses_t = experience['obs0']
-            actions = experience['actions']
-            rewards = experience['rewards']
-            obses_tp1 = experience['obs1']
-            dones = experience['terminals1']
-            weights = np.ones_like(rewards)
-            td_errors = train(obses_t, actions, rewards, obses_tp1, dones, weights)
-            if pre_t % target_network_update_freq == 0:
-                update_target()
-        U.save_state(expert_file)
+        for epoch_idx in range(epoch):
+            l2_loss = []
+            for pre_t in range(pre_timesteps):
+                experience = expert.sample(batch_size)
+                obses_t = experience['obs0']
+                actions = experience['actions']
+                rewards = experience['rewards']
+                obses_tp1 = experience['obs1']
+                dones = experience['terminals1']
+                weights = np.ones_like(rewards)
+                td_errors = train(obses_t, actions, rewards, obses_tp1, dones, weights)
+                l2_loss.append(np.linalg.norm(td_errors,2))
+                if not os.path.exists('./logs/' + env.spec.id + '/expert_loss.csv'):
+                    with open('./logs/' + env.spec.id + '/expert_loss.csv', 'a', newline='') as csvfile:
+                        l = td_errors.size
+                        label = ['loss' + str(i) for i in range(l)]
+                        label.insert(0, 't')
+                        spamwriter = csv.writer(csvfile, delimiter=',',
+                                                quotechar=',', quoting=csv.QUOTE_MINIMAL)
+                        spamwriter.writerow(label)
+                with open('./logs/' + env.spec.id + '/expert_loss.csv', 'a', newline='') as csvfile:
+                    spamwriter = csv.writer(csvfile, delimiter=',',
+                                            quotechar=',', quoting=csv.QUOTE_MINIMAL)
+                    spamwriter.writerow(np.insert(td_errors, 0, pre_t+pre_timesteps*epoch_idx))
+
+                if pre_t % target_network_update_freq == 0:
+                    update_target()
+                if len(l2_loss) % 10 == 0:
+                    logger.record_tabular("steps", pre_t)
+                    logger.record_tabular("mean 100 l2 loss", sum(l2_loss)/len(l2_loss))
+                    logger.dump_tabular()
+            U.save_state(expert_file+"epoch"+str(epoch_idx))
     with tempfile.TemporaryDirectory() as td:
         model_saved = False
         # model_file = os.path.join(td, "model")

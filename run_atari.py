@@ -18,6 +18,7 @@ def main():
     parser.add_argument('--prioritized', type=int, default=1)
     parser.add_argument('--dueling', type=int, default=1)
     parser.add_argument('--expert',type=int, default=0)
+    parser.add_argument('--epoch', type=int, default=60)
     parser.add_argument('--pre-timesteps',type=int, default=int(1e4))
     parser.add_argument('--num-timesteps', type=int, default=int(10e6))
     parser.add_argument('--log-dir', type=str, default=None)
@@ -49,7 +50,7 @@ def main():
     else:
         model_dir = os.path.join('./model/', args.env, args.model_dir)
     if args.expert_model_dir is None:
-        expert_model_dir = os.path.join('./expert/',args.env, "pretrain"+str(args.pre_timesteps))
+        expert_model_dir = os.path.join('./expert/',args.env, "pretrain"+str(args.pre_timesteps*args.epoch))
     else:
         expert_model_dir = os.path.join('./expert/', args.env, args.expert_model_dir)
     logger.configure(dir = dir)
@@ -81,7 +82,8 @@ def main():
         use_expert=bool(args.expert),
         pre_timesteps=args.pre_timesteps,
         model_file=model_dir,
-        expert_file=expert_model_dir
+        expert_file=expert_model_dir,
+        epoch=args.epoch,
     )
     # act.save("pong_model.pkl") XXX
     obs = env.reset()
